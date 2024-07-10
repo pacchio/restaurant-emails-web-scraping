@@ -12,21 +12,17 @@ options.headless = True
 driver = webdriver.Chrome(options=options)
 
 # Set up settings variables
-FOLDER = "data"
+FOLDER = "data/"
+FILE_NAME="restaurants.csv"
 NUM_OF_PAGES = 4
 
-# cities = ["torino", "milano", "genova", "bologna", "venezia", "verona", "padova", "trieste", "brescia", "parma", "modena", "ferrara", "ravenna", "mantova", "trento", "bolzano", "udine", "pavia", "cremona", "bergamo"]
-# cities = ["perugia", "assisi", "orvieto", "spoleto", "terni", "rieti", "arezzo", "chieti", "pescara", "ancona"]
-# cities = ["siena", "lucca", "como", "ravenna", "sorrento", "pisa", "mantova", "lecce", "rimini", "cortona"]
-# cities = ["biella", "cuneo", "imperia", "lodi", "novara"]
-# cities = ["foggia", "latina", "terni", "avellino"]
-cities = ["vercelli", "aosta", "trapani", "barletta", "pistoia"]
+cities = ["torino", "milano", "genova", "bologna", "venezia", "verona"]
 restaurants_data = []
 
 
 def get_existing_emails():
     try:
-        with open(FOLDER + '/restaurants.csv') as f:
+        with open(FOLDER + FILE_NAME) as f:
             return [line.split(';')[1].strip() for line in f]
     except:
         return []
@@ -42,27 +38,6 @@ def get_text_from_element(restaurant_element):
         return ''
 
 
-def click_on_element_by(by=By.ID, value: str = None):
-    try:
-        element = driver.find_element(by, value)
-        WebDriverWait(driver, 5000).until(EC.element_to_be_clickable(element))
-    except:
-        print('Error while clicking on element by [%s: %s]' % (by, value))
-        return False
-
-    return True
-
-
-def click_on_element(element):
-    try:
-        WebDriverWait(driver, 5000).until(EC.element_to_be_clickable(element))
-    except:
-        print('Error while clicking on element [%s]' % element)
-        return False
-
-    return True
-
-
 def iterate_website_links_for_page():
     website_links = WebDriverWait(driver, 1000).until(
         EC.presence_of_all_elements_located((By.LINK_TEXT, "Website")))
@@ -70,7 +45,8 @@ def iterate_website_links_for_page():
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".rllt__details > div:nth-child(1) > span")))
 
     for index, wlink in enumerate(website_links):
-        print("Restaurant: ", get_text_from_element(restaurants_names[index]))
+        restaurant_name = get_text_from_element(restaurants_names[index])
+        print("Restaurant: ", restaurant_name)
         try:
             driver.execute_script("arguments[0].scrollIntoView();", wlink)
             WebDriverWait(driver, 5000).until(EC.element_to_be_clickable(wlink)).click()
@@ -83,7 +59,7 @@ def iterate_website_links_for_page():
         email = re.search(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b', page_source)
 
         restaurant = {
-            'name': get_text_from_element(restaurants_names[index]),
+            'name': restaurant_name,
             'email': email.group() if email else ''
         }
 
@@ -107,9 +83,9 @@ def iterate_pages_by_city(city):
         iterate_website_links_for_page()
 
         print("Writing %d restaurants to file for page %d" % (len(restaurants_data), i + 1))
-        with open(FOLDER + '/restaurants.csv', 'a') as f:
+        with open(FOLDER + FILE_NAME, 'a') as f:
             for r in restaurants_data:
-                f.write("%s;%s\n" % (city, r['email']))
+                f.write("%s;%s;%s\n" % (city, r['name'], r['email']))
 
         # Clear restaurants data for the next page
         restaurants_data = []

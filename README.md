@@ -26,11 +26,15 @@ The script actually can process an array of cities, saving all the emails into a
    - `source venv/bin/activate` on macOS / Linux
    - `venv\Scripts\activate` on Windows
 4. Install selenium with `pip install --upgrade selenium`
-5. Run the script with `python get_emails.py`
+5. Run the script with `python main.py`
 6. Deactivate the virtual environment with `deactivate`
 
 ## Configuration
 The script is ready to be used, but you can change the cities to search for in the `cities` array in the `get_emails.py` file.
+
+## Known issues
+- When the script starts you have to **manually accept the cookies** on Google (needed only at the beginning)
+- Wrong restaurant names for sponsored results (to fix)
 
 ## Disclaimer
 This script is for educational purposes only. The author is not responsible for any misuse of the information provided.
